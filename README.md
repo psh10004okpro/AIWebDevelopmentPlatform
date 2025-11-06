@@ -51,8 +51,20 @@ NextGen AI Platform is a next-generation web development platform powered by art
   - 보안 위반 모니터링
   - 개인정보 접근 기록 (6년 보관)
   - 일별 로그 로테이션
+- **다국어 지원 (i18n)**: 한국어/영어 전환
+  - JSON 기반 번역 파일
+  - 모든 UI 요소 다국어 지원
+- **분석 대시보드**: 사용량 통계 및 리포트
+  - 프로젝트/코드 생성/비용 통계
+  - AI 모델별 사용량 분석
+  - 언어/프레임워크 통계
+- **한국 시장 템플릿**: 한국 서비스 통합 템플릿
+  - 네이버 스마트스토어 API
+  - 카카오톡 챗봇
+  - 토스페이먼츠
+  - 정부24 API
+  - 한국형 관리자 대시보드
 - **한국 OAuth 통합**: 카카오/네이버 로그인 (예정)
-- **다국어 지원**: 한국어/영어 전환 (예정)
 - **PIPA 개인정보 동의 관리**: 한국 개인정보보호법 준수 (예정)
 
 ## Project Structure
@@ -68,7 +80,8 @@ nextgen-ai-platform/
 │   ├── preview-engine/   # Live preview server
 │   ├── rag-service/      # RAG system with vector search
 │   ├── security-enhancer/ # Security analysis & auto-fix
-│   └── audit-logger/     # Enterprise audit logging (PIPA compliant)
+│   ├── audit-logger/     # Enterprise audit logging (PIPA compliant)
+│   └── korean-templates/ # Korean market templates & integrations
 ├── packages/
 │   ├── types/           # Shared TypeScript types
 │   ├── utils/           # Common utilities
@@ -266,6 +279,14 @@ pnpm clean
    - 6-year retention for personal data logs
    - Daily log rotation
 
+9. **Korean Templates** (Port 3008) 🇰🇷
+   - Pre-built templates for Korean market
+   - Naver Smart Store integration
+   - Kakao Talk chatbot templates
+   - Toss Payments integration
+   - Government24 API templates
+   - Korean Admin Dashboard UI
+
 ### Data Flow
 
 ```
@@ -288,6 +309,7 @@ Key variables:
 - `RAG_SERVICE_URL` - RAG service URL (http://localhost:3005)
 - `SECURITY_ENHANCER_URL` - Security Enhancer URL (http://localhost:3006)
 - `AUDIT_LOGGER_URL` - Audit Logger URL (http://localhost:3007)
+- `KOREAN_TEMPLATES_URL` - Korean Templates URL (http://localhost:3008)
 - `AI_ORCHESTRATOR_URL` - AI Orchestrator URL (http://localhost:3002)
 - `GITHUB_ID` / `GITHUB_SECRET` - GitHub OAuth credentials
 - `GOOGLE_ID` / `GOOGLE_SECRET` - Google OAuth credentials
@@ -400,8 +422,11 @@ For support, email support@nextgen-ai-platform.com or open an issue on GitHub.
   - 개인정보 접근 기록 (6년 보관)
   - Winston 로그 프레임워크
   - 일별 로그 로테이션
+  - 다국어 지원 (한국어/영어 i18n)
+  - 분석 대시보드 (사용량 통계)
+  - 한국 시장 템플릿 (네이버, 카카오, 토스, 정부24)
   - 카카오/네이버 OAuth (예정)
-  - 다국어 지원 (한국어/영어) (예정)
+  - PIPA 개인정보 동의 관리 (예정)
 
 - [ ] **Phase 5: 고급 코드 편집 & 성능 최적화**
   - 멀티 파일 편집 (AST 분석)
