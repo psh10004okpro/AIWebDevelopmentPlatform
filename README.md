@@ -8,7 +8,7 @@ NextGen AI Platform is a next-generation web development platform powered by art
 
 ## Features
 
-### Phase 1 MVP (완료)
+### Phase 1 MVP (완료) ✅
 - **AI Code Generation**: Claude 및 OpenAI 지원, 자연어로 코드 생성
 - **Monaco Editor**: VS Code와 동일한 강력한 코드 에디터
 - **Real-time Preview**: iframe 샌드박스를 통한 실시간 프리뷰
@@ -19,6 +19,17 @@ NextGen AI Platform is a next-generation web development platform powered by art
 - **Type-Safe**: 전체 코드베이스에 TypeScript strict mode 적용
 - **Monorepo Structure**: Turborepo로 최적화된 개발 경험
 
+### Phase 2 AI 고도화 (완료) ✅
+- **RAG System**: Qdrant 벡터 DB 기반 시맨틱 검색
+- **Document Indexing**: React, Next.js, Tailwind CSS 공식 문서 임베딩
+- **Multi-Model Routing**: 작업 복잡도에 따른 최적 모델 자동 선택
+  - Simple tasks → GPT-4o Mini (빠르고 저렴)
+  - Complex tasks → Claude 3.5 Sonnet (높은 품질)
+- **Context Management**: 대화 히스토리 유지 및 자동 압축 (8000 토큰 제한)
+- **Token Tracking**: 실시간 토큰 사용량 추적 및 비용 계산
+- **Cost Estimation**: 생성 전 예상 비용 확인
+- **Real-time Stats**: 24시간/7일 사용량 통계 대시보드
+
 ## Project Structure
 
 ```
@@ -27,12 +38,14 @@ nextgen-ai-platform/
 │   ├── web/              # Next.js frontend application
 │   └── api/              # Express API Gateway
 ├── services/
-│   ├── ai-orchestrator/  # AI service orchestration
+│   ├── ai-orchestrator/  # AI service orchestration & model routing
 │   ├── code-generator/   # Code generation engine
-│   └── preview-engine/   # Live preview server
+│   ├── preview-engine/   # Live preview server
+│   └── rag-service/      # RAG system with vector search
 ├── packages/
 │   ├── types/           # Shared TypeScript types
 │   ├── utils/           # Common utilities
+│   ├── database/        # Prisma schema & migrations
 │   └── typescript-config/ # Shared TS configs
 └── infrastructure/      # Docker & K8s configuration
 ```
@@ -54,12 +67,17 @@ nextgen-ai-platform/
 - **Express** - Web framework for Node.js
 - **TypeScript** - Type-safe backend code
 - **PostgreSQL** - Primary database (Prisma ORM)
+- **Qdrant** - Vector database for RAG
 - **NextAuth.js** - 인증 시스템
 
 ### AI Integration
 - **Anthropic Claude** - Claude 3.5 Sonnet
-- **OpenAI** - GPT-4 Turbo
+- **OpenAI** - GPT-4 Turbo, GPT-4o Mini, text-embedding-3-small
 - **Zod** - 스키마 검증
+- **RAG System** - Document retrieval & semantic search
+- **Model Router** - 작업 복잡도 기반 모델 자동 선택
+- **Context Manager** - 대화 히스토리 관리 및 압축
+- **Token Tracker** - 사용량 추적 및 비용 추정
 
 ### DevOps
 - **Turborepo** - Monorepo build system
@@ -96,7 +114,8 @@ cp apps/web/.env.example apps/web/.env.local
 
 환경 변수 설정:
 - `ANTHROPIC_API_KEY`: Claude API 키 (필수)
-- `OPENAI_API_KEY`: OpenAI API 키 (선택)
+- `OPENAI_API_KEY`: OpenAI API 키 (embedding 생성에 필수)
+- `QDRANT_URL`: Qdrant 벡터 DB URL (Docker 사용 시 자동 설정)
 - `GITHUB_ID` 및 `GITHUB_SECRET`: GitHub OAuth 앱
 - `GOOGLE_ID` 및 `GOOGLE_SECRET`: Google OAuth 앱
 
@@ -128,12 +147,18 @@ pnpm dev
 # Terminal 3 - AI Orchestrator
 cd services/ai-orchestrator
 pnpm dev
+
+# Terminal 4 - RAG Service
+cd services/rag-service
+pnpm dev
 ```
 
 5. Open your browser:
 - Frontend: http://localhost:3000
 - API: http://localhost:3001
 - AI Orchestrator: http://localhost:3002
+- RAG Service: http://localhost:3005
+- Qdrant Dashboard: http://localhost:6333/dashboard
 
 ### Development
 
@@ -169,9 +194,11 @@ pnpm clean
    - Request routing
 
 3. **AI Orchestrator** (Port 3002)
-   - Coordinates AI model requests
-   - Manages AI provider integrations
-   - Request queuing and rate limiting
+   - Multi-model routing (complexity-based)
+   - Context management & conversation history
+   - Token usage tracking & cost estimation
+   - RAG integration
+   - AI provider coordination
 
 4. **Code Generator** (Port 3003)
    - Generates code from AI prompts
@@ -182,6 +209,12 @@ pnpm clean
    - Real-time code preview
    - Sandboxed execution environment
    - Live updates
+
+6. **RAG Service** (Port 3005)
+   - Semantic search with Qdrant vector DB
+   - Document indexing (React, Next.js, Tailwind CSS)
+   - OpenAI embeddings generation
+   - Context retrieval for code generation
 
 ### Data Flow
 
@@ -195,11 +228,14 @@ See `.env.example` for all available environment variables.
 
 Key variables:
 - `DATABASE_URL` - PostgreSQL connection string
+- `QDRANT_URL` - Qdrant vector database URL (http://localhost:6333)
 - `NEXTAUTH_URL` - NextAuth URL (http://localhost:3000)
 - `NEXTAUTH_SECRET` - NextAuth secret key
 - `ANTHROPIC_API_KEY` - Anthropic Claude API key
-- `OPENAI_API_KEY` - OpenAI API key (optional)
+- `OPENAI_API_KEY` - OpenAI API key (embedding 생성에 필수)
 - `DEFAULT_AI_PROVIDER` - claude 또는 openai (기본값: claude)
+- `RAG_SERVICE_URL` - RAG service URL (http://localhost:3005)
+- `AI_ORCHESTRATOR_URL` - AI Orchestrator URL (http://localhost:3002)
 - `GITHUB_ID` / `GITHUB_SECRET` - GitHub OAuth credentials
 - `GOOGLE_ID` / `GOOGLE_SECRET` - Google OAuth credentials
 
@@ -280,20 +316,31 @@ For support, email support@nextgen-ai-platform.com or open an issue on GitHub.
   - Vercel v0 스타일 스플릿 뷰
   - Prisma + PostgreSQL 데이터베이스
 
-- [ ] **Phase 2: 고급 기능**
-  - AI 채팅 인터페이스
-  - 코드 리팩토링 제안
+- [x] **Phase 2: AI 고도화** ✅
+  - RAG 시스템 (Qdrant 벡터 DB)
+  - 문서 인덱싱 (React, Next.js, Tailwind CSS 공식 문서)
+  - OpenAI 임베딩 생성 (text-embedding-3-small)
+  - 멀티 모델 라우팅 (작업 복잡도 기반 자동 선택)
+  - 컨텍스트 관리 (대화 히스토리 유지 및 압축)
+  - 토큰 사용량 추적 및 비용 추정
+  - 실시간 통계 대시보드
+  - TokenMeter 및 CostEstimator UI 컴포넌트
+
+- [ ] **Phase 3: 고급 코드 편집**
+  - 멀티 파일 편집 (AST 분석)
+  - TypeScript Compiler API 통합
+  - 디버그 루프 방지 시스템
+  - 코드 품질 자동 체크 (ESLint/Prettier)
   - 자동 테스트 생성
   - Git 통합
-  - 협업 기능
 
-- [ ] **Phase 3: 배포 및 호스팅**
+- [ ] **Phase 4: 배포 및 호스팅**
   - Vercel/Netlify 배포
   - 커스텀 도메인
   - 환경 변수 관리
   - 로그 및 모니터링
 
-- [ ] **Phase 4: 엔터프라이즈 기능**
+- [ ] **Phase 5: 엔터프라이즈 기능**
   - 팀 관리
   - 역할 기반 접근 제어
   - 사용량 분석

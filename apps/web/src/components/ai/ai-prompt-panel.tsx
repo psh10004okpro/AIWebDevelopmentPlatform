@@ -6,9 +6,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Sparkles, Loader2 } from 'lucide-react';
 import { useEditorStore } from '@/store/editor';
 import { toast } from 'sonner';
+import { CostEstimator } from './cost-estimator';
 
 export function AIPromptPanel() {
   const [prompt, setPrompt] = useState('');
+  const [sessionId] = useState(`session-${Date.now()}`);
   const { isGenerating, setIsGenerating, addFile } = useEditorStore();
 
   const handleGenerate = async () => {
@@ -28,7 +30,8 @@ export function AIPromptPanel() {
         body: JSON.stringify({
           prompt,
           language: 'react',
-          temperature: 0.7,
+          sessionId,
+          useRAG: true,
         }),
       });
 
@@ -68,14 +71,17 @@ export function AIPromptPanel() {
           <h3 className="font-semibold">AI 코드 생성</h3>
         </div>
 
-        <Textarea
-          placeholder="어떤 코드를 생성할까요? (예: 버튼 컴포넌트를 만들어줘)"
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          rows={3}
-          className="resize-none"
-          disabled={isGenerating}
-        />
+        <div className="space-y-2">
+          <Textarea
+            placeholder="어떤 코드를 생성할까요? (예: 버튼 컴포넌트를 만들어줘)"
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            rows={3}
+            className="resize-none"
+            disabled={isGenerating}
+          />
+          <CostEstimator prompt={prompt} />
+        </div>
 
         <Button onClick={handleGenerate} disabled={isGenerating} className="w-full">
           {isGenerating ? (
@@ -91,9 +97,14 @@ export function AIPromptPanel() {
           )}
         </Button>
 
-        <p className="text-xs text-muted-foreground">
-          자연어로 요청하면 AI가 코드를 생성합니다
-        </p>
+        <div className="space-y-1">
+          <p className="text-xs text-muted-foreground">
+            자연어로 요청하면 AI가 코드를 생성합니다
+          </p>
+          <p className="text-xs text-muted-foreground">
+            ✨ RAG 기반 문서 검색 활성화됨
+          </p>
+        </div>
       </div>
     </div>
   );

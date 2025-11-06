@@ -1,5 +1,5 @@
 {
-  "name": "@nextgen-ai-platform/ai-orchestrator",
+  "name": "@nextgen-ai-platform/rag-service",
   "version": "0.1.0",
   "private": true,
   "main": "dist/index.js",
@@ -7,7 +7,8 @@
     "dev": "nodemon --watch src --exec ts-node src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "index-docs": "ts-node src/scripts/index-documents.ts"
   },
   "dependencies": {
     "@nextgen-ai-platform/types": "workspace:*",
@@ -15,10 +16,11 @@
     "@nextgen-ai-platform/database": "workspace:*",
     "express": "^4.18.2",
     "dotenv": "^16.3.1",
-    "@anthropic-ai/sdk": "^0.10.0",
+    "@qdrant/js-client-rest": "^1.7.0",
     "openai": "^4.20.1",
-    "zod": "^3.22.4",
+    "cheerio": "^1.0.0-rc.12",
     "axios": "^1.6.2",
+    "zod": "^3.22.4",
     "lru-cache": "^10.1.0"
   },
   "devDependencies": {
