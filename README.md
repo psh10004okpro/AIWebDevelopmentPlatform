@@ -8,13 +8,16 @@ NextGen AI Platform is a next-generation web development platform powered by art
 
 ## Features
 
-- **AI Code Generation**: Generate production-ready code using advanced AI models
-- **Real-time Preview**: See your changes instantly with our live preview engine
-- **Microservices Architecture**: Scalable, maintainable, and modular design
-- **Modern Tech Stack**: Built with Next.js 14, React 18, TypeScript, and Tailwind CSS
-- **Dark Mode Support**: Beautiful UI with light and dark themes
-- **Type-Safe**: Strict TypeScript configuration across the entire codebase
-- **Monorepo Structure**: Organized with Turborepo for optimal developer experience
+### Phase 1 MVP (완료)
+- **AI Code Generation**: Claude 및 OpenAI 지원, 자연어로 코드 생성
+- **Monaco Editor**: VS Code와 동일한 강력한 코드 에디터
+- **Real-time Preview**: iframe 샌드박스를 통한 실시간 프리뷰
+- **Project Management**: 프로젝트 및 파일 CRUD 작업
+- **Authentication**: GitHub/Google OAuth 로그인
+- **Split View UI**: Vercel v0 스타일의 3패널 레이아웃 (파일 탐색기/에디터/프리뷰)
+- **Dark Mode Support**: 라이트/다크 테마 지원
+- **Type-Safe**: 전체 코드베이스에 TypeScript strict mode 적용
+- **Monorepo Structure**: Turborepo로 최적화된 개발 경험
 
 ## Project Structure
 
@@ -42,13 +45,21 @@ nextgen-ai-platform/
 - **TypeScript** - Type safety (strict mode)
 - **Tailwind CSS** - Utility-first CSS framework
 - **shadcn/ui** - Re-usable component library
+- **Monaco Editor** - VS Code 편집기
 - **next-themes** - Dark mode support
+- **Zustand** - 상태 관리
+- **react-resizable-panels** - 리사이저블 패널
 
 ### Backend
 - **Express** - Web framework for Node.js
 - **TypeScript** - Type-safe backend code
-- **PostgreSQL** - Primary database
-- **Redis** - Caching and session storage
+- **PostgreSQL** - Primary database (Prisma ORM)
+- **NextAuth.js** - 인증 시스템
+
+### AI Integration
+- **Anthropic Claude** - Claude 3.5 Sonnet
+- **OpenAI** - GPT-4 Turbo
+- **Zod** - 스키마 검증
 
 ### DevOps
 - **Turborepo** - Monorepo build system
@@ -81,10 +92,25 @@ pnpm install
 ```bash
 cp .env.example .env
 cp apps/web/.env.example apps/web/.env.local
-cp apps/api/.env.example apps/api/.env
 ```
 
-4. Start the development environment with Docker:
+환경 변수 설정:
+- `ANTHROPIC_API_KEY`: Claude API 키 (필수)
+- `OPENAI_API_KEY`: OpenAI API 키 (선택)
+- `GITHUB_ID` 및 `GITHUB_SECRET`: GitHub OAuth 앱
+- `GOOGLE_ID` 및 `GOOGLE_SECRET`: Google OAuth 앱
+
+4. 데이터베이스 설정:
+```bash
+# Prisma 마이그레이션
+cd packages/database
+pnpm db:push
+
+# 시드 데이터 (선택)
+pnpm db:seed
+```
+
+5. Start the development environment with Docker:
 ```bash
 docker-compose up -d
 ```
@@ -169,10 +195,13 @@ See `.env.example` for all available environment variables.
 
 Key variables:
 - `DATABASE_URL` - PostgreSQL connection string
-- `REDIS_URL` - Redis connection string
+- `NEXTAUTH_URL` - NextAuth URL (http://localhost:3000)
+- `NEXTAUTH_SECRET` - NextAuth secret key
+- `ANTHROPIC_API_KEY` - Anthropic Claude API key
 - `OPENAI_API_KEY` - OpenAI API key (optional)
-- `ANTHROPIC_API_KEY` - Anthropic API key (optional)
-- `JWT_SECRET` - Secret for JWT token generation
+- `DEFAULT_AI_PROVIDER` - claude 또는 openai (기본값: claude)
+- `GITHUB_ID` / `GITHUB_SECRET` - GitHub OAuth credentials
+- `GOOGLE_ID` / `GOOGLE_SECRET` - Google OAuth credentials
 
 ## Docker
 
@@ -235,13 +264,40 @@ For support, email support@nextgen-ai-platform.com or open an issue on GitHub.
 
 ## Roadmap
 
-- [ ] Phase 0: Project initialization ✅
-- [ ] Phase 1: Authentication system
-- [ ] Phase 2: AI integration
-- [ ] Phase 3: Code generation engine
-- [ ] Phase 4: Real-time preview
-- [ ] Phase 5: Deployment pipeline
-- [ ] Phase 6: Advanced features
+- [x] **Phase 0: Project initialization** ✅
+  - Turborepo monorepo 설정
+  - Next.js 14 + TypeScript 설정
+  - Docker 개발 환경
+  - CI/CD 파이프라인
+
+- [x] **Phase 1: MVP 핵심 기능** ✅
+  - NextAuth.js 인증 (GitHub/Google OAuth)
+  - AI 코드 생성 파이프라인 (Claude + OpenAI)
+  - Monaco Editor 통합
+  - 파일 탐색기 UI
+  - 실시간 프리뷰 시스템 (iframe 샌드박스)
+  - 프로젝트 관리 (CRUD)
+  - Vercel v0 스타일 스플릿 뷰
+  - Prisma + PostgreSQL 데이터베이스
+
+- [ ] **Phase 2: 고급 기능**
+  - AI 채팅 인터페이스
+  - 코드 리팩토링 제안
+  - 자동 테스트 생성
+  - Git 통합
+  - 협업 기능
+
+- [ ] **Phase 3: 배포 및 호스팅**
+  - Vercel/Netlify 배포
+  - 커스텀 도메인
+  - 환경 변수 관리
+  - 로그 및 모니터링
+
+- [ ] **Phase 4: 엔터프라이즈 기능**
+  - 팀 관리
+  - 역할 기반 접근 제어
+  - 사용량 분석
+  - 프리미엄 플랜
 
 ## Acknowledgments
 

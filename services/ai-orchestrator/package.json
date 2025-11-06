@@ -12,8 +12,12 @@
   "dependencies": {
     "@nextgen-ai-platform/types": "workspace:*",
     "@nextgen-ai-platform/utils": "workspace:*",
+    "@nextgen-ai-platform/database": "workspace:*",
     "express": "^4.18.2",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "@anthropic-ai/sdk": "^0.10.0",
+    "openai": "^4.20.1",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@nextgen-ai-platform/typescript-config": "workspace:*",
