@@ -30,6 +30,16 @@ NextGen AI Platform is a next-generation web development platform powered by art
 - **Cost Estimation**: 생성 전 예상 비용 확인
 - **Real-time Stats**: 24시간/7일 사용량 통계 대시보드
 
+### Phase 3 프로덕션 준비 (진행 중) 🚧
+- **Security Enhancer**: 자동 보안 검사 시스템
+  - SQL Injection 방지 (Prisma ORM 권장)
+  - XSS 방지 (DOMPurify 자동 적용)
+  - CSRF 보호 (토큰 생성 및 검증)
+  - Rate Limiting (API 속도 제한)
+  - Input Validation (Zod 스키마 자동 생성)
+- **Security Report UI**: 실시간 보안 검사 결과 대시보드
+- **자동 코드 수정**: 취약점 발견 시 안전한 코드 자동 제안
+
 ## Project Structure
 
 ```
@@ -41,7 +51,8 @@ nextgen-ai-platform/
 │   ├── ai-orchestrator/  # AI service orchestration & model routing
 │   ├── code-generator/   # Code generation engine
 │   ├── preview-engine/   # Live preview server
-│   └── rag-service/      # RAG system with vector search
+│   ├── rag-service/      # RAG system with vector search
+│   └── security-enhancer/ # Security analysis & auto-fix
 ├── packages/
 │   ├── types/           # Shared TypeScript types
 │   ├── utils/           # Common utilities
@@ -216,6 +227,13 @@ pnpm clean
    - OpenAI embeddings generation
    - Context retrieval for code generation
 
+7. **Security Enhancer** (Port 3006)
+   - Automated security vulnerability detection
+   - SQL Injection, XSS, CSRF, Input Validation checks
+   - Auto-fix code generation for vulnerabilities
+   - Security score calculation
+   - Best practice recommendations
+
 ### Data Flow
 
 ```
@@ -235,6 +253,7 @@ Key variables:
 - `OPENAI_API_KEY` - OpenAI API key (embedding 생성에 필수)
 - `DEFAULT_AI_PROVIDER` - claude 또는 openai (기본값: claude)
 - `RAG_SERVICE_URL` - RAG service URL (http://localhost:3005)
+- `SECURITY_ENHANCER_URL` - Security Enhancer URL (http://localhost:3006)
 - `AI_ORCHESTRATOR_URL` - AI Orchestrator URL (http://localhost:3002)
 - `GITHUB_ID` / `GITHUB_SECRET` - GitHub OAuth credentials
 - `GOOGLE_ID` / `GOOGLE_SECRET` - Google OAuth credentials
@@ -326,21 +345,34 @@ For support, email support@nextgen-ai-platform.com or open an issue on GitHub.
   - 실시간 통계 대시보드
   - TokenMeter 및 CostEstimator UI 컴포넌트
 
-- [ ] **Phase 3: 고급 코드 편집**
+- [x] **Phase 3: 프로덕션 준비 (보안 강화)** ✅
+  - Security Enhancer 서비스 구축
+  - SQL Injection 자동 검사 및 수정 (Prisma ORM 권장)
+  - XSS 방지 (DOMPurify 자동 적용, CSP 설정)
+  - CSRF 보호 (토큰 생성 및 Double Submit Cookie 패턴)
+  - Rate Limiting (Sliding Window 알고리즘)
+  - Input Validation (Zod 스키마 자동 생성)
+  - AI Orchestrator 통합 (자동 보안 체크)
+  - SecurityReport UI 컴포넌트
+  - 보안 점수 계산 (0-100)
+
+- [ ] **Phase 4: 고급 코드 편집 & 성능 최적화**
   - 멀티 파일 편집 (AST 분석)
   - TypeScript Compiler API 통합
   - 디버그 루프 방지 시스템
   - 코드 품질 자동 체크 (ESLint/Prettier)
-  - 자동 테스트 생성
-  - Git 통합
+  - 자동 테스트 생성 (AI 기반)
+  - Git 통합 (isomorphic-git)
+  - Lighthouse 성능 분석 에이전트
+  - 번들 크기 최적화 제안
 
-- [ ] **Phase 4: 배포 및 호스팅**
+- [ ] **Phase 5: 배포 및 호스팅**
   - Vercel/Netlify 배포
   - 커스텀 도메인
   - 환경 변수 관리
   - 로그 및 모니터링
 
-- [ ] **Phase 5: 엔터프라이즈 기능**
+- [ ] **Phase 6: 엔터프라이즈 기능**
   - 팀 관리
   - 역할 기반 접근 제어
   - 사용량 분석

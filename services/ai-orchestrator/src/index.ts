@@ -21,6 +21,7 @@ const contextManager = new ContextManager();
 const tokenTracker = new TokenTracker();
 
 const RAG_SERVICE_URL = process.env.RAG_SERVICE_URL || 'http://localhost:3005';
+const SECURITY_ENHANCER_URL = process.env.SECURITY_ENHANCER_URL || 'http://localhost:3006';
 
 // 요청 스키마 검증
 const GenerateRequestSchema = z.object({
@@ -34,6 +35,7 @@ const GenerateRequestSchema = z.object({
   projectId: z.string().optional(),
   useRAG: z.boolean().optional().default(true),
   complexity: z.nativeEnum(TaskComplexity).optional(),
+  enableSecurityCheck: z.boolean().optional().default(true),
 });
 
 // Health check
@@ -130,6 +132,27 @@ app.post('/generate', async (req: Request, res: Response) => {
       });
     }
 
+    // 8. 보안 체크 (선택적)
+    let securityReport: any = null;
+    if (validatedData.enableSecurityCheck) {
+      try {
+        const securityResponse = await axios.post(`${SECURITY_ENHANCER_URL}/check`, {
+          code: result.code,
+          language: validatedData.language,
+          checks: ['sql-injection', 'xss', 'csrf', 'input-validation'],
+        });
+
+        securityReport = securityResponse.data;
+
+        // 보안 점수가 낮으면 경고 추가
+        if (securityReport.securityScore < 70) {
+          console.warn(`⚠️ 보안 점수 낮음 (${securityReport.securityScore}/100)`);
+        }
+      } catch (error) {
+        console.warn('보안 체크 실패, 계속 진행:', error);
+      }
+    }
+
     const duration = Date.now() - startTime;
 
     res.json({
@@ -140,6 +163,7 @@ app.post('/generate', async (req: Request, res: Response) => {
         sessionId,
         duration,
         ragUsed: !!ragContext,
+        securityReport,
       },
     });
   } catch (error) {
