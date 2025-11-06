@@ -1,9 +1,10 @@
 import { ClaudeProvider } from './providers/claude';
 import { OpenAIProvider } from './providers/openai';
+import { HyperClovaXWrapper } from './providers/hyperclova-wrapper';
 import { AIProvider, CodeGenerationRequest, CodeGenerationResponse } from './providers/base';
 import { prisma } from '@nextgen-ai-platform/database';
 
-type AIProviderType = 'claude' | 'openai';
+type AIProviderType = 'claude' | 'openai' | 'hyperclova';
 
 export class CodeGenerationPipeline {
   private providers: Map<AIProviderType, AIProvider>;
@@ -27,6 +28,27 @@ export class CodeGenerationPipeline {
         'openai',
         new OpenAIProvider(process.env.OPENAI_API_KEY, process.env.OPENAI_MODEL)
       );
+    }
+
+    // HyperCLOVA X Provider 초기화 (한국어 특화)
+    if (
+      process.env.HYPERCLOVA_API_KEY &&
+      process.env.HYPERCLOVA_API_KEY_PRIMARY_VAL &&
+      process.env.HYPERCLOVA_APIGW_API_KEY
+    ) {
+      this.providers.set(
+        'hyperclova',
+        new HyperClovaXWrapper(
+          {
+            apiKey: process.env.HYPERCLOVA_API_KEY,
+            apiKeyPrimaryVal: process.env.HYPERCLOVA_API_KEY_PRIMARY_VAL,
+            apigwApiKey: process.env.HYPERCLOVA_APIGW_API_KEY,
+            endpoint: process.env.HYPERCLOVA_ENDPOINT,
+          },
+          process.env.HYPERCLOVA_MODEL || 'HCX-003'
+        )
+      );
+      console.log('✅ HyperCLOVA X Provider 초기화 완료');
     }
 
     if (this.providers.size === 0) {
