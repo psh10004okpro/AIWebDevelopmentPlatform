@@ -1,0 +1,147 @@
+---
+# AI Orchestrator Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-orchestrator
+  namespace: nextgen-ai-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ai-orchestrator
+  template:
+    metadata:
+      labels:
+        app: ai-orchestrator
+    spec:
+      containers:
+      - name: ai-orchestrator
+        image: nextgen-ai-platform/ai-orchestrator:latest
+        ports:
+        - containerPort: 3002
+          name: http
+        env:
+        - name: PORT
+          value: "3002"
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: nextgen-ai-platform-config
+              key: NODE_ENV
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: nextgen-ai-platform-secrets
+              key: ANTHROPIC_API_KEY
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: nextgen-ai-platform-secrets
+              key: OPENAI_API_KEY
+        - name: HYPERCLOVA_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: nextgen-ai-platform-secrets
+              key: HYPERCLOVA_API_KEY
+        - name: HYPERCLOVA_API_KEY_PRIMARY_VAL
+          valueFrom:
+            secretKeyRef:
+              name: nextgen-ai-platform-secrets
+              key: HYPERCLOVA_API_KEY_PRIMARY_VAL
+        - name: HYPERCLOVA_APIGW_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: nextgen-ai-platform-secrets
+              key: HYPERCLOVA_APIGW_API_KEY
+        - name: HYPERCLOVA_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: nextgen-ai-platform-config
+              key: HYPERCLOVA_ENDPOINT
+        - name: HYPERCLOVA_MODEL
+          valueFrom:
+            configMapKeyRef:
+              name: nextgen-ai-platform-config
+              key: HYPERCLOVA_MODEL
+        - name: DEFAULT_AI_PROVIDER
+          valueFrom:
+            configMapKeyRef:
+              name: nextgen-ai-platform-config
+              key: DEFAULT_AI_PROVIDER
+        - name: RAG_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: nextgen-ai-platform-config
+              key: RAG_SERVICE_URL
+        - name: SECURITY_ENHANCER_URL
+          valueFrom:
+            configMapKeyRef:
+              name: nextgen-ai-platform-config
+              key: SECURITY_ENHANCER_URL
+        - name: AUDIT_LOGGER_URL
+          valueFrom:
+            configMapKeyRef:
+              name: nextgen-ai-platform-config
+              key: AUDIT_LOGGER_URL
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "1000m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3002
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3002
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-orchestrator-service
+  namespace: nextgen-ai-platform
+spec:
+  selector:
+    app: ai-orchestrator
+  ports:
+  - port: 3002
+    targetPort: 3002
+  type: ClusterIP
+
+---
+# Horizontal Pod Autoscaler for AI Orchestrator
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ai-orchestrator-hpa
+  namespace: nextgen-ai-platform
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ai-orchestrator
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80

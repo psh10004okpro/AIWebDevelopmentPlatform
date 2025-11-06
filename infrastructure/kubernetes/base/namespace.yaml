@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nextgen-ai-platform
+  labels:
+    name: nextgen-ai-platform
+    environment: production

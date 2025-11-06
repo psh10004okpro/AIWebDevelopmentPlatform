@@ -1,0 +1,100 @@
+---
+# AWS Application Load Balancer Ingress
+# Requires AWS Load Balancer Controller installed in cluster
+# https://kubernetes-sigs.github.io/aws-load-balancer-controller/
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nextgen-ai-platform-ingress
+  namespace: nextgen-ai-platform
+  annotations:
+    # AWS ALB annotations
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+
+    # SSL Certificate (ACM)
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-northeast-2:ACCOUNT_ID:certificate/CERT_ID
+
+    # Health check
+    alb.ingress.kubernetes.io/healthcheck-path: /api/health
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '30'
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '5'
+    alb.ingress.kubernetes.io/healthy-threshold-count: '2'
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
+
+    # WAF
+    alb.ingress.kubernetes.io/wafv2-acl-arn: arn:aws:wafv2:ap-northeast-2:ACCOUNT_ID:regional/webacl/NAME/ID
+
+    # Access logs
+    alb.ingress.kubernetes.io/load-balancer-attributes: access_logs.s3.enabled=true,access_logs.s3.bucket=nextgen-ai-platform-alb-logs,access_logs.s3.prefix=production
+
+    # Security
+    alb.ingress.kubernetes.io/security-groups: sg-xxxxxxxxx
+
+    # Tags
+    alb.ingress.kubernetes.io/tags: Environment=production,Application=nextgen-ai-platform
+spec:
+  rules:
+  - host: ai-platform.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: web-service
+            port:
+              number: 3000
+
+  - host: api.ai-platform.example.com
+    http:
+      paths:
+      - path: /ai
+        pathType: Prefix
+        backend:
+          service:
+            name: ai-orchestrator-service
+            port:
+              number: 3002
+      - path: /rag
+        pathType: Prefix
+        backend:
+          service:
+            name: rag-service
+            port:
+              number: 3005
+      - path: /security
+        pathType: Prefix
+        backend:
+          service:
+            name: security-enhancer-service
+            port:
+              number: 3006
+      - path: /audit
+        pathType: Prefix
+        backend:
+          service:
+            name: audit-logger-service
+            port:
+              number: 3007
+      - path: /templates
+        pathType: Prefix
+        backend:
+          service:
+            name: korean-templates-service
+            port:
+              number: 3008
+
+---
+# Rate Limiting using AWS WAF (reference configuration)
+# Create WAF WebACL with these rules:
+# 1. Rate-based rule: 2000 requests per 5 minutes per IP
+# 2. Geographic restriction: Allow only KR, US, JP
+# 3. IP reputation list (AWS Managed Rules)
+# 4. Known bad inputs (AWS Managed Rules)
+# 5. SQL injection protection (AWS Managed Rules)
+# 6. XSS protection (AWS Managed Rules)

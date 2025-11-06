@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nextgen-ai-platform-config
+  namespace: nextgen-ai-platform
+data:
+  # Database
+  DATABASE_HOST: postgres-service
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: nextgen_ai_platform
+
+  # Qdrant Vector DB
+  QDRANT_URL: http://qdrant-service:6333
+
+  # Service URLs (Internal)
+  API_URL: http://api-service:3001
+  AI_ORCHESTRATOR_URL: http://ai-orchestrator-service:3002
+  CODE_GENERATOR_URL: http://code-generator-service:3003
+  PREVIEW_ENGINE_URL: http://preview-engine-service:3004
+  RAG_SERVICE_URL: http://rag-service:3005
+  SECURITY_ENHANCER_URL: http://security-enhancer-service:3006
+  AUDIT_LOGGER_URL: http://audit-logger-service:3007
+  KOREAN_TEMPLATES_URL: http://korean-templates-service:3008
+
+  # NextAuth
+  NEXTAUTH_URL: https://ai-platform.example.com
+
+  # Features
+  PIPA_COMPLIANCE_ENABLED: "true"
+  DATA_RETENTION_DAYS: "2190"
+  AUDIT_DB_ENABLED: "true"
+
+  # AI Providers
+  DEFAULT_AI_PROVIDER: claude
+  HYPERCLOVA_ENDPOINT: https://clovastudio.stream.ntruss.com
+  HYPERCLOVA_MODEL: HCX-003
+
+  # Logging
+  LOG_LEVEL: info
+  NODE_ENV: production

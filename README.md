@@ -416,7 +416,7 @@ For support, email support@nextgen-ai-platform.com or open an issue on GitHub.
   - SecurityReport UI 컴포넌트
   - 보안 점수 계산 (0-100)
 
-- [x] **Phase 4: 한국 시장 최적화 & 엔터프라이즈** (진행 중) 🇰🇷
+- [x] **Phase 4: 한국 시장 최적화 & 엔터프라이즈** ✅
   - HyperCLOVA X 통합 (네이버 AI, 한국어 특화)
   - 엔터프라이즈 감사 로그 시스템 (PIPA 준수)
   - 개인정보 접근 기록 (6년 보관)
@@ -428,7 +428,40 @@ For support, email support@nextgen-ai-platform.com or open an issue on GitHub.
   - 카카오/네이버 OAuth (예정)
   - PIPA 개인정보 동의 관리 (예정)
 
-- [ ] **Phase 5: 고급 코드 편집 & 성능 최적화**
+- [x] **Phase 5: 출시 준비 및 운영** ✅
+  - **Kubernetes 배포 설정** (AWS EKS)
+    - Namespace, ConfigMap, Secrets 설정
+    - StatefulSet (PostgreSQL, Qdrant)
+    - Deployment (Web, AI Orchestrator, 마이크로서비스)
+    - Service, Ingress (ALB), HPA 설정
+  - **프로덕션 Docker Compose**
+    - 멀티 컨테이너 오케스트레이션
+    - 리소스 제한 및 헬스체크
+    - 로그 관리 및 볼륨 설정
+  - **모니터링 시스템**
+    - Prometheus (메트릭 수집, 알림 규칙)
+    - Grafana (대시보드, 시각화)
+    - 커스텀 메트릭 (API, 코드 생성, 토큰)
+  - **성능 테스트**
+    - k6 부하 테스트 스크립트
+    - 목표: 1,000 동시 접속, p95 < 500ms
+    - 자동화된 성능 리포트
+  - **보안 감사**
+    - OWASP Top 10 체크리스트
+    - 침투 테스트 가이드
+    - WAF 규칙, SSL/TLS 설정
+    - PIPA 준수 확인
+  - **법적 문서**
+    - 서비스 이용약관 (한/영)
+    - 개인정보처리방침 (PIPA 준수)
+    - SLA 정의 (99.9% 가용성)
+    - AI 코드 저작권 정책
+  - **배포 가이드**
+    - AWS EKS 배포 가이드
+    - Docker Compose 배포 가이드
+    - 롤백 및 트러블슈팅
+
+- [ ] **Phase 6: 고급 코드 편집 & 성능 최적화**
   - 멀티 파일 편집 (AST 분석)
   - TypeScript Compiler API 통합
   - 디버그 루프 방지 시스템
@@ -438,17 +471,9 @@ For support, email support@nextgen-ai-platform.com or open an issue on GitHub.
   - Lighthouse 성능 분석 에이전트
   - 번들 크기 최적화 제안
 
-- [ ] **Phase 6: 배포 및 호스팅**
-  - Vercel/Netlify 배포
-  - 네이버 클라우드 플랫폼 배포
-  - 커스텀 도메인
-  - 환경 변수 관리
-  - 로그 및 모니터링
-
 - [ ] **Phase 7: 엔터프라이즈 기능 확장**
   - 팀 관리 및 협업
   - 역할 기반 접근 제어 (RBAC)
-  - 사용량 분석 대시보드
   - 프리미엄 플랜 (한국 결제 연동)
   - 플러그인 마켓플레이스
   - 화이트라벨 옵션

@@ -1,0 +1,286 @@
+---
+# RAG Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-service
+  namespace: nextgen-ai-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: rag-service
+  template:
+    metadata:
+      labels:
+        app: rag-service
+    spec:
+      containers:
+      - name: rag-service
+        image: nextgen-ai-platform/rag-service:latest
+        ports:
+        - containerPort: 3005
+        env:
+        - name: PORT
+          value: "3005"
+        - name: QDRANT_URL
+          valueFrom:
+            configMapKeyRef:
+              name: nextgen-ai-platform-config
+              key: QDRANT_URL
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: nextgen-ai-platform-secrets
+              key: OPENAI_API_KEY
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3005
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3005
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rag-service
+  namespace: nextgen-ai-platform
+spec:
+  selector:
+    app: rag-service
+  ports:
+  - port: 3005
+    targetPort: 3005
+  type: ClusterIP
+
+---
+# Security Enhancer Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: security-enhancer
+  namespace: nextgen-ai-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: security-enhancer
+  template:
+    metadata:
+      labels:
+        app: security-enhancer
+    spec:
+      containers:
+      - name: security-enhancer
+        image: nextgen-ai-platform/security-enhancer:latest
+        ports:
+        - containerPort: 3006
+        env:
+        - name: PORT
+          value: "3006"
+        - name: AI_ORCHESTRATOR_URL
+          valueFrom:
+            configMapKeyRef:
+              name: nextgen-ai-platform-config
+              key: AI_ORCHESTRATOR_URL
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3006
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3006
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: security-enhancer-service
+  namespace: nextgen-ai-platform
+spec:
+  selector:
+    app: security-enhancer
+  ports:
+  - port: 3006
+    targetPort: 3006
+  type: ClusterIP
+
+---
+# Audit Logger Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: audit-logger
+  namespace: nextgen-ai-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: audit-logger
+  template:
+    metadata:
+      labels:
+        app: audit-logger
+    spec:
+      containers:
+      - name: audit-logger
+        image: nextgen-ai-platform/audit-logger:latest
+        ports:
+        - containerPort: 3007
+        env:
+        - name: PORT
+          value: "3007"
+        - name: PIPA_COMPLIANCE_ENABLED
+          valueFrom:
+            configMapKeyRef:
+              name: nextgen-ai-platform-config
+              key: PIPA_COMPLIANCE_ENABLED
+        - name: DATA_RETENTION_DAYS
+          valueFrom:
+            configMapKeyRef:
+              name: nextgen-ai-platform-config
+              key: DATA_RETENTION_DAYS
+        - name: AUDIT_DB_ENABLED
+          valueFrom:
+            configMapKeyRef:
+              name: nextgen-ai-platform-config
+              key: AUDIT_DB_ENABLED
+        volumeMounts:
+        - name: audit-logs
+          mountPath: /app/logs
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3007
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3007
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: audit-logs
+        persistentVolumeClaim:
+          claimName: audit-logs-pvc
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: audit-logs-pvc
+  namespace: nextgen-ai-platform
+spec:
+  accessModes:
+    - ReadWriteMany  # Multiple pods need access
+  storageClassName: efs  # AWS EFS for shared storage
+  resources:
+    requests:
+      storage: 100Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: audit-logger-service
+  namespace: nextgen-ai-platform
+spec:
+  selector:
+    app: audit-logger
+  ports:
+  - port: 3007
+    targetPort: 3007
+  type: ClusterIP
+
+---
+# Korean Templates Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: korean-templates
+  namespace: nextgen-ai-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: korean-templates
+  template:
+    metadata:
+      labels:
+        app: korean-templates
+    spec:
+      containers:
+      - name: korean-templates
+        image: nextgen-ai-platform/korean-templates:latest
+        ports:
+        - containerPort: 3008
+        env:
+        - name: PORT
+          value: "3008"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3008
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3008
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: korean-templates-service
+  namespace: nextgen-ai-platform
+spec:
+  selector:
+    app: korean-templates
+  ports:
+  - port: 3008
+    targetPort: 3008
+  type: ClusterIP
